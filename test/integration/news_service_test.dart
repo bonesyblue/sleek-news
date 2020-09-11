@@ -51,10 +51,14 @@ void main() {
         final mockNewsContent =
             await File(testPath("mocks/news_content.json")).readAsString();
 
-        final utString =
-            mockNewsContent.replaceAll(RegExp('[^\u0000-\u007F]+'), "");
-
-        final mockNews = NewsContentResponse.fromJson(jsonDecode(utString));
+        final mockNews = NewsContentResponse.fromJson(
+          jsonDecode(
+            utf8.decode(
+              mockNewsContent.runes.toList(),
+              allowMalformed: true,
+            ),
+          ),
+        );
 
         when(
           mockHttpClient.get(
@@ -65,10 +69,9 @@ void main() {
           ),
         ).thenAnswer(
           (_) => Future.value(
-            http.Response(
-              utString,
-              200,
-            ),
+            http.Response(mockNewsContent, 200, headers: {
+              HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
+            }),
           ),
         );
 

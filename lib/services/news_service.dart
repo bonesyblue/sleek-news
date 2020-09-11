@@ -48,7 +48,9 @@ class NewsService {
       throw new Exception('error fetching me');
     }
 
-    final json = jsonDecode(response.body);
+    /// Ensure that response body is parsed as utf8 string before decoding
+    /// JSON. This avoids codec issues regarding illegal characters.
+    final json = jsonDecode(utf8.decode(response.bodyBytes));
     return NewsContentResponse.fromJson(json);
   }
 }
